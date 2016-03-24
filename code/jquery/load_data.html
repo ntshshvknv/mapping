@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+<head>
+    <title>Работа с данными</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="http://yandex.st/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+<ul id="content">
+
+</ul>
+
+<script language="javascript">
+
+//http://api.jquery.com/jquery.getjson/
+
+$.getJSON('data.json', drawList);
+
+function drawList(data) {
+  console.log(data.features.length);
+  data.features.forEach(function(feature, i) {
+    console.log(feature);
+    var s = '<p>' + feature.properties.Attributes.Name + '</p>';
+    $('body').append(s);
+  });
+}
+
+
+</script>
+</body>
+</html>

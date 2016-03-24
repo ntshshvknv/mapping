@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Load GeoJSON from a URL</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+<div id='map'></div>
+
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoibWluaWthcm1hIiwiYSI6ImNpbGI3czdudjAwNGh3Ym02bmEza3JpdDUifQ.jTBLg9q0zdpe8ZbGuUBI6g';
+var map = L.mapbox.map('map', 'mapbox.light')
+    .setView([55.744537,37.625224], 12);
+
+L.mapbox.featureLayer()
+    .loadURL('../data/bike_stations.geojson') //загружаем geoJson
+
+    //добавляем событие, которое обрабатываем по загрузке файла
+    .on('ready', function(e) {
+
+      //выдёргиваем из загруженного объекта geoJson-объект
+      var source = e.target.getGeoJSON();
+
+      console.log(source);
+
+      //чтобы применить стиль, можно указать в geoJson данных стили
+      source.features.forEach(function(feature) {
+        if(feature.properties.slots > 15) {
+                    feature.properties['marker-color'] = '#ff7800';
+        } else {
+                  feature.properties['marker-color'] = '#00ddaa';
+        }
+
+        feature.properties['marker-symbol'] = 'bicycle';
+      });
+
+      //объект который отлично работает с geoJson
+      L.geoJson(source, {
+
+        pointToLayer: L.mapbox.marker.style, //эта функция для того, чтобы распознать стили в данных
+
+        //данные можно сразу зафильтровать по какому-нибудь признаку
+        filter: function(feature) {
+          return (feature.properties.capacity > 10);
+        },
+
+        //с каждым отдельным объектом в загруженных данных можно что-нибудь сделать
+        onEachFeature: function(feature,layer) {
+
+          //например, добавить popup
+          layer.bindPopup(feature.properties.name + '<br/>Вместимость: ' + feature.properties.capacity)
+        },
+        //функция style пригодится если будете указывать стили для полигонов/линий
+        //style: function(feature) { return feature.properties; }
+
+      })
+      .on('click', function(e) {
+        console.log(e); //показывает свойства объекта на который кликнули
+      })
+      .addTo(map);
+
+    });
+
+
+</script>
+</body>
+</html>
